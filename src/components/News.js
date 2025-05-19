@@ -1,0 +1,815 @@
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
+import NewsItem from './NewsItem'
+import Spinner from './Spinner';
+import InfiniteScroll from "react-infinite-scroll-component";
+
+export class News extends Component {
+
+  static defaultProps = {
+    country: 'us',
+    pageSize: 8,
+    category: 'general'
+  }
+
+  static propTypes = {
+    country: PropTypes.string,
+    pageSize: PropTypes.number,
+    category: PropTypes.string
+  }
+  // static propTypes = {}
+  // articles = [
+    
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": null,
+  //           "title": "Speed of cricket balls could stump housing scheme",
+  //           "description": "Developers and Sport England disagree over the risk from cricket balls to future residents.",
+  //           "url": "https://www.bbc.com/news/articles/cx2d5xez419o",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/0dc7/live/ba4c38e0-a139-11ef-9f85-27126280b4e4.jpg",
+  //           "publishedAt": "2024-11-12T21:34:35Z",
+  //           "content": "A row over the speed of balls being hit by cricket batsmen could delay a major housing scheme.\r\nDevelopers were granted permission to convert an office building next to Crossflatts Cricket Club in Bi… [+1927 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": null,
+  //           "title": "Man arrested over burglary at Ben Stokes's home",
+  //           "description": "A man is arrested following a burglary at England cricket captain Ben Stokes's home, police said.",
+  //           "url": "https://www.bbc.com/news/articles/c3e8407lkv3o",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_news/0f2c/live/60f697b0-1203-11ef-82e8-cd354766a224.png",
+  //           "publishedAt": "2024-11-01T14:44:51Z",
+  //           "content": "A man has been arrested following a burglary at England cricket captain Ben Stokes's home, police have said. \r\nStokes, who was in Pakistan for the recent Test series, said his wife and two children w… [+320 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": "Matthew Henry",
+  //           "title": "To keep or not to keep - Buttler's big decision",
+  //           "description": "BBC Sport analyses the positives and negatives on whether England captain Jos Buttler should give up the wicketkeeping gloves in white-ball cricket.",
+  //           "url": "https://www.bbc.com/sport/cricket/articles/ce9g08jyk9xo",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_sport/a015/live/06182760-9560-11ef-98a0-f3896dd9fa85.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-30T14:06:58Z",
+  //           "content": "But if those arguments sound convincing, the reality is less straightforward.\r\nYes, the sample size is too small to draw definitive conclusions but when Buttler has captained from the outfield there … [+1482 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn", "name": "ESPN" },
+  //           "author": "Nick Parkinson",
+  //           "title": "Adam Azim using 'superpower' ADHD in boxing rise",
+  //           "description": "Junior welterweight contender Adam Azim has said that having ADHD is like having a superpower as a professional boxer.",
+  //           "url": "https://www.espn.com/boxing/story/_/id/41850101/adam-azim-adhd-superpower-boxing-career",
+  //           "urlToImage": "https://a.espncdn.com/combiner/i?img=%2Fphoto%2F2024%2F1017%2Fr1401854_1296x729_16%2D9.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-18T11:25:35Z",
+  //           "content": "Junior welterweight contender Adam Azim said living with ADHD is like having a superpower as a professional boxer but acknowledged his struggles as a child and the diligence required not to burn hims… [+4456 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Sky Sports" },
+  //           "author": null,
+  //           "title": "Papers: Liverpool set sights on Lyon star Cherki as Salah replacement",
+  //           "description": "The top stories and transfer rumours from Sunday's newspapers...",
+  //           "url": "https://www.skysports.com/football/transfer-paper-talk/12709/13255454/liverpool-set-sights-on-lyon-star-rayan-cherki-as-potential-mohamed-salah-replacement-paper-talk",
+  //           "urlToImage": "https://e0.365dm.com/19/${this.props.pageSize}/1600x900/skysports-paper-talk-papers_4819668.jpg?20240829221137",
+  //           "publishedAt": "2024-11-16T22:01:00Z",
+  //           "content": "The top stories and transfer rumours from Sunday's newspapers...\r\nDAILY MAIL\r\nLiverpool have reportedly set their sights on Lyon star Rayan Cherki as a possible replacement for Mohamed Salah, with th… [+2432 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tristan Lavalette, Contributor, \n Tristan Lavalette, Contributor\n https://www.forbes.com/sites/tristanlavalette/",
+  //           "title": "Battle Set To Emerge Over Where Cricket Will Be Played At Los Angeles Olympics",
+  //           "description": "The cricket competition for the Los Angeles Olympics might not be played on the west coast and could instead be entirely housed on the other side of the U.S.",
+  //           "url": "https://www.forbes.com/sites/tristanlavalette/2024/${this.props.pageSize}/20/battle-set-to-emerge-over-where-cricket-will-be-played-at-los-angeles-olympics/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/66bb576bce29bcc359b50d3f/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-20T12:43:16Z",
+  //           "content": "Cricket will return to the Olympics in Los Angeles (Photo by INDRANIL MUKHERJEE/AFP via Getty ... [+] Images)\r\nAFP via Getty Images\r\nThe cricket competition for the Los Angeles Olympics might not be … [+3596 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tristan Lavalette, Contributor, \n Tristan Lavalette, Contributor\n https://www.forbes.com/sites/tristanlavalette/",
+  //           "title": "Amid Asian Games Uncertainty, Cricket Axed At 2026 Commonwealth Games Ahead Of Olympics",
+  //           "description": "With its Asian Games fate uncertain, cricket suffered a blow in its bid to become a staple at multi-sports events after being culled from the 2026 Commonwealth Games.",
+  //           "url": "https://www.forbes.com/sites/tristanlavalette/2024/${this.props.pageSize}/25/amid-asian-games-uncertainty-cricket-axed-at-2026-commonwealth-games-ahead-of-olympics/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/671b8b803998886969db0d16/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T13:53:23Z",
+  //           "content": "Australia won gold at the 2022 Commonwealth Games (Photo by Alex Davidson/Getty Images)\r\nGetty Images\r\nWith the sport's Asian Games fate uncertain, cricket suffered a blow in its bid to become a stap… [+4059 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Al Jazeera",
+  //           "title": "Gambhir unconcerned by India’s WTC final scenarios; backs Rohit and Kohli",
+  //           "description": "Captain Rohit likely to miss the opening Test in Perth as India look to retain the Border-Gavaskar Trophy in Australia.",
+  //           "url": "https://www.aljazeera.com/sports/2024/11/11/gambhir-unconcerned-by-indias-wtc-final-scenarios-backs-rohit-and-kohli",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/11/AFP__20241025__36KQ8QB__v1__HighRes__CricketIndNzlTest-1731309276.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-11-11T07:39:31Z",
+  //           "content": "Indias cricket coach Gautam Gambhir has backed incredibly tough men Rohit Sharma and Virat Kohli to prove their critics wrong and find form in Australia following a humiliating Test series home defea… [+3690 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Al Jazeera Staff",
+  //           "title": "India vs New Zealand, third Test: Patel takes 11 as India lose by 25 runs",
+  //           "description": "Mumbai-born Ajaz Patel takes 11 wickets as New Zealand win by 25 runs and bag the series 3-0 at the Wankhede Stadium.",
+  //           "url": "https://www.aljazeera.com/sports/2024/11/3/india-vs-new-zealand-third-test-patel-takes-11-as-india-lose-by-25-runs",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/11/AFP__20241103__36LG8KG__v1__HighRes__CricketIndNzlTest-1730620470_6615fc-1730621773.jpg?resize=1200%2C630&quality=80",
+  //           "publishedAt": "2024-11-03T07:42:44Z",
+  //           "content": "New Zealand have become only the second team in Test cricket history to hand India a home series whitewash after winning their third Test against the hosts by 25 runs in Mumbai.\r\nNeeding 147 runs to … [+2540 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tristan Lavalette, Contributor, \n Tristan Lavalette, Contributor\n https://www.forbes.com/sites/tristanlavalette/",
+  //           "title": "Why South Africa’s Major Upset Of Australia Is Good For Women’s Cricket",
+  //           "description": "South Africa's upset of Australia at the T20 World Cup underlines a loosening of the stranglehold from the trio of power nations in women's cricket.",
+  //           "url": "https://www.forbes.com/sites/tristanlavalette/2024/${this.props.pageSize}/18/why-south-africas-major-upset-of-australia-is-good-for-womens-cricket/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/6711c253bcda3ce1202e5870/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-18T14:41:01Z",
+  //           "content": "Anneke Bosch and Chloe Tryon celebrated South Africa's victory over Australia (Photo by Alex ... [+] Davidson-ICC/ICC via Getty Images)\r\nICC via Getty Images\r\nMeg Lanning, women's cricket GOAT, had r… [+4751 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "abc-news", "name": "ABC News" },
+  //           "author": "Jonathan Karl, Rachel Scott, Katherine Faulders, Luke Barr, Soo Rin Kim",
+  //           "title": "Trump picks Kristi Noem to be Homeland Security secretary",
+  //           "description": "Former President Donald Trump has tapped South Dakota Gov. Kristi Noem to be his Homeland Security secretary.",
+  //           "url": "https://abcnews.go.com/Politics/trump-expected-tap-kristi-noem-homeland-security-secretary/story?id=115772453",
+  //           "urlToImage": "https://i.abcnewsfe.com/a/8e9e685f-d418-4b0a-b2e6-b29a2753c4e1/kristi-noem-5-gty-gmh-241112_1731421080711_hpMain_16x9.jpg?w=1600",
+  //           "publishedAt": "2024-11-13T01:01:14Z",
+  //           "content": "President-elect Donald Trump announced on Tuesday he has chosen South Dakota Gov. Kristi Noem to be his secretary for the Department of Homeland Security.\r\n\"Kristi has been very strong on Border Secu… [+4346 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tristan Lavalette, Contributor, \n Tristan Lavalette, Contributor\n https://www.forbes.com/sites/tristanlavalette/",
+  //           "title": "New Zealand Stun Cricket Power India In One Of The Biggest Upsets In Sports",
+  //           "description": "New Zealand's monumental upset of cricket powerhouse India might just be the biggest upset in all of sports given the vast differences in finances between the countries.",
+  //           "url": "https://www.forbes.com/sites/tristanlavalette/2024/${this.props.pageSize}/27/new-zealand-stun-cricket-power-india-in-one-of-the-biggest-upsets-in-sports/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/671df8a88504f21b9c730e10/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-27T14:13:16Z",
+  //           "content": "New Zealand stunned India in a monumental Test cricket upset (Photo by PUNIT PARANJPE/AFP via Getty ... [+] Images)\r\nAFP via Getty Images\r\nThis shocker of a result, magnified by the seismic differenc… [+4561 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Cracked.com" },
+  //           "author": "Carly Tennes",
+  //           "title": "These Are the ‘It’s Always Sunny in Philadelphia’ Side Characters Who Make the Gang Look Like Saints",
+  //           "description": "Somehow there are even worse people in the Paddy's Pub universe than Charlie, Dee, Mac, Dennis and Frank",
+  //           "url": "https://www.cracked.com/article_44143_these-are-the-its-always-sunny-in-philadelphia-side-characters-who-make-the-gang-look-like-saints.html",
+  //           "urlToImage": "https://s3.crackedcdn.com/phpimages/article/7/5/9/1174759.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-28T13:20:00Z",
+  //           "content": "By nearly all metrics, the Its Always Sunny in Philadelphia gang are certifiably terrible people. But even with their pitiful track record of exhibiting basic human decency, one defined by kidnapping… [+1530 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Cracked.com" },
+  //           "author": "Carly Tennes",
+  //           "title": "Sheryl Lee Ralph Says She ‘Had No Idea’ the Paddy’s Pub Crew ‘Were Criminals’ Ahead of the ‘Abbott Elementary’/‘It’s Always Sunny in Philadelphia’ Crossover",
+  //           "description": "‘They know how to steal. I mean, right in front of you, too!’",
+  //           "url": "https://www.cracked.com/article_44368_sheryl-lee-ralph-says-she-had-no-idea-the-paddys-pub-crew-were-criminals-ahead-of-the-abbott-elementaryits-always-sunny-in-philadelphia-crossover.html",
+  //           "urlToImage": "https://s3.crackedcdn.com/phpimages/article/8/7/2/1185872.jpg",
+  //           "publishedAt": "2024-11-13T14:20:00Z",
+  //           "content": "Sheryl Lee Ralph definitely didnt talk to Rickety Cricket, the Waitress, the Juarez family, Principal MacIntyre, Eugene Hamilton, Maureen Ponderosa, Bill Ponderosa, Ruby Taft, Roxy and The Waiter ahe… [+1322 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Kevin Hand",
+  //           "title": "New Zealand inflict India’s first home Test series defeat in 13 years",
+  //           "description": "New Zealand seal the three-match series - their first in India - with a 113-run win in the second Test in Pune.",
+  //           "url": "https://www.aljazeera.com/sports/2024/${this.props.pageSize}/26/new-zealand-inflict-indias-first-home-test-series-defeat-in-13-years",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/${this.props.pageSize}/AP24300390130243-1729940859.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-${this.props.pageSize}-26T11:37:18Z",
+  //           "content": "India crashed to a humiliating three-day home defeat by 113 runs in the second Test in Pune on Saturday as New Zealand became the first touring team to seal a series win in the country for 13 years.\r… [+4827 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": "Matthew Henry",
+  //           "title": "From 52-2 to 53 all out - Western Australia's dramatic collapse",
+  //           "description": "Western Australia lose their last eight wickets for just one run in an extraordinary collapse against Tasmania in Australia's domestic 50-over competition.",
+  //           "url": "https://www.bbc.com/sport/cricket/articles/c98e148524po",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_sport/59e2/live/1d458950-929a-11ef-833b-7123203e35b4.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T07:01:06Z",
+  //           "content": "Western Australia lost their last eight wickets for just one run in an extraordinary collapse against Tasmania in Australia's domestic 50-over competition.\r\nThe three-time defending champions reached… [+784 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": "BBC Sport",
+  //           "title": "Urdu, prayer & grandma - Bashir & Ahmed in Pakistan",
+  //           "description": "In a special interview, England spinners Shoaib Bashir and Rehan Ahmed talk about their heritage, speaking Urdu to the opposition and praying with the Pakistan team.",
+  //           "url": "https://www.bbc.com/sport/cricket/articles/c8696eppj4do",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_sport/122e/live/47c8b770-9073-11ef-b224-4d232983a015.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-22T13:24:36Z",
+  //           "content": "Off-spinner Bashirs father was born in Pakistan and his mother in the UK. Both of leg-spinner Ahmeds parents were born in Pakistan. His older brother Raheem has been on the books of Rehans county Lei… [+1140 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tristan Lavalette, Contributor, \n Tristan Lavalette, Contributor\n https://www.forbes.com/sites/tristanlavalette/",
+  //           "title": "Revival Of Cricket’s Afro-Asia Cup On The Cards",
+  //           "description": "The prospect of cricketers from foes India and Pakistan teaming up has moved a step closer with a reboot of the Afro-Asia Cup on the cards.",
+  //           "url": "https://www.forbes.com/sites/tristanlavalette/2024/11/05/revival-of-crickets-afro-asia-cup-on-the-cards/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/62bc61e422f11e8b17d17a97/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-11-06T03:23:27Z",
+  //           "content": "The Afro-Asia Cup might be revived (Photo by by INDRANIL MUKHERJEE/AFP via Getty Images)\r\nAFP via Getty Images\r\nThe prospect of cricketers from foes India and Pakistan teaming up has moved a step clo… [+4235 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": "BBC Sport",
+  //           "title": "Uncapped McSweeney to open in Australia's first Test v India",
+  //           "description": "Uncapped batter Nathan McSweeney will open for Australia in the first of five Tests against India.",
+  //           "url": "https://www.bbc.com/sport/cricket/articles/cm2zd13dn9no",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_sport/d54b/live/c3ee6090-9eea-11ef-afb1-3f45262bfbc0.jpg",
+  //           "publishedAt": "2024-11-09T22:40:01Z",
+  //           "content": "Nathan McSweeney will open the batting on his debut for Australia in the first Test against India at Perth. \r\nThe 25-year-old opened for the first time in first-class cricket during the recent match … [+1234 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Sky Sports" },
+  //           "author": null,
+  //           "title": "Arsenal sporting director Edu to leave club",
+  //           "description": "Arsenal sporting director Edu has taken the decision to leave the club.",
+  //           "url": "https://www.skysports.com/football/news/11095/13248137/edu-arsenal-sporting-director-to-leave-club-with-reason-for-exit-as-yet-unclear",
+  //           "urlToImage": "https://e0.365dm.com/22/11/1600x900/skysports-edu-gaspar-arsenal_5970034.jpg?20221118111720",
+  //           "publishedAt": "2024-11-04T08:35:00Z",
+  //           "content": "Arsenal sporting director Edu has taken the decision to leave the club.\r\nThe sporting director has been away in Brazil on personal matters and arrived back late last week.\r\nSources have told Sky Spor… [+1269 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Sky Sports" },
+  //           "author": null,
+  //           "title": "Sky Sports to show 118 WSL games per season in historic new five-year deal",
+  //           "description": "Sky has announced a historic five-year partnership with the Women's Professional League, securing the rights to show nearly 90 per cent of all Women's Super League matches from the 2025/26 season.",
+  //           "url": "https://www.skysports.com/football/news/36996/13244534/wsl-new-broadcast-deal-sky-sports-to-remain-home-of-womens-football-in-historic-five-year-deal-from-2025-26-season",
+  //           "urlToImage": "https://e0.365dm.com/24/${this.props.pageSize}/1600x900/skysports-wsl-new-deal-five-year-wsl-deal_6733255.png?20241030145631",
+  //           "publishedAt": "2024-${this.props.pageSize}-30T15:00:00Z",
+  //           "content": "Sky has announced a historic five-year partnership with the Women's Professional League, securing the rights to show nearly 90 per cent of all Women's Super League matches from the 2025/26 season.\r\nS… [+3295 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "AAP",
+  //           "title": "'Where does Australian cricket play?' Queensland Cricket renews talks over Gabba future",
+  //           "description": "A new state government was recently elected with Olympic plans set to be reassessed but a brand new venue is not part of the plan",
+  //           "url": "https://www.espncricinfo.com/story/where-does-australian-cricket-play-queensland-cricket-renews-talks-over-gabba-future-1458869",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/315200/315292.6.jpg",
+  //           "publishedAt": "2024-11-08T10:${this.props.pageSize}:51Z",
+  //           "content": "The Gabba does not have a guaranteed Test beyond the 2025-26 Ashes  •  Cricket Australia via Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Paras J. Haji, Contributor, \n Paras J. Haji, Contributor\n https://www.forbes.com/sites/parasjan/",
+  //           "title": "Women’s T20 World Cup: New Zealand Finally Lifts The Trophy, Beats South Africa In Finals",
+  //           "description": "14 years after the final loss, the White Ferns win their maiden title.",
+  //           "url": "https://www.forbes.com/sites/parasjan/2024/${this.props.pageSize}/22/womens-t20-world-cup-new-zealand-finally-lifts-the-trophy-beats-south-africa-in-finals/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/6717b2c691a74b159c74a313/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-22T14:27:20Z",
+  //           "content": "New Zealand's players celebrate their victory at the end of the ICC Women's T20 World Cup cricket ... [+] final match between South Africa and New Zealand at the Dubai International Cricket Stadium i… [+2316 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Alex Malcolm",
+  //           "title": "Warner's leadership banned overturned by Cricket Australia",
+  //           "description": "The decision means he is now eligible to lead Sydney Thunder in the BBL",
+  //           "url": "https://www.espncricinfo.com/story/australia-news-david-warner-s-leadership-banned-overturned-by-cricket-australia-1456839",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/352400/352458.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T00:07:38Z",
+  //           "content": "David Warner's leadership ban has been overturned meaning he can captain Sydney Thunder  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Alex Malcolm",
+  //           "title": "Shane Warne stand unveiled at the Junction Oval",
+  //           "description": "A stand at the Junction Oval in Melbourne, home of Cricket Victoria and St Kilda Cricket Club, has been renamed in Shane Warne's honour",
+  //           "url": "https://www.espncricinfo.com/story/shane-warne-stand-unveiled-at-the-junction-oval-1456842",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/389700/389741.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T01:01:49Z",
+  //           "content": "Ross Hepburn, Brooke, Summer and Keith Warne and Paul Ryan unveil the renamed Shane Warne Stand at the Junction Oval in Melbourne  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Hafsa Adil",
+  //           "title": "India vs New Zealand – talking points: Rohit, Kohli, Ravindra, Patel, Gill",
+  //           "description": "From misfiring Indian stars Rohit and Kohli, to New Zealand's players using 'home' advantage, here's how India lost.",
+  //           "url": "https://www.aljazeera.com/sports/2024/11/3/india-vs-new-zealand-talking-points-rohit-kohli-ravindra-patel-gill",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/11/AFP__20241101__36LC288__v2__HighRes__TopshotCricketIndNzlTest-1730627925.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-11-03T13:45:03Z",
+  //           "content": "In one of the biggest upsets in the history of Test cricket, New Zealand handed India a 3-0 series loss at home when they won the third Test in Mumbai by 25 runs, having already beaten the hosts comp… [+5916 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "BBC News" },
+  //           "author": "Stephan Shemilt",
+  //           "title": "Is Smith England's next number three?",
+  //           "description": "Jamie Smith is proving to be England's man for a crisis, while Ollie Pope is struggling to avoid a crisis of his own, writes Stephan Shemilt",
+  //           "url": "https://www.bbc.com/sport/cricket/articles/cn9xlwjprz2o",
+  //           "urlToImage": "https://ichef.bbci.co.uk/news/1024/branded_sport/c29b/live/4dcd8ea0-920a-11ef-a639-39dd5d9cab6d.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-24T16:22:34Z",
+  //           "content": "This latest rescue act may be the most important knock in Smiths short career. It is all the more impressive given the last match, Englands defeat in the second Test in Multan, was his worst with the… [+2260 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Torrentfreak.com" },
+  //           "author": "Ernesto Van der Sar",
+  //           "title": "Amazon’s Indian Branch Targets Pirate Streaming Apps Hosted on GitHub",
+  //           "description": "Amazon is cracking down on pirate streaming apps that offer unauthorized access to Prime Video content. The company recently filed DMCA takedown notices with GitHub to remove APKs associated with popular apps such as PikaShow, Castle, and FlixFox. Interesting…",
+  //           "url": "https://torrentfreak.com/amazons-indian-branch-targets-pirate-streaming-apps-hosted-on-github-241103/",
+  //           "urlToImage": "https://torrentfreak.com/images/repogithub.jpg",
+  //           "publishedAt": "2024-11-03T20:35:38Z",
+  //           "content": "GitHub is no stranger when it comes to DMCA takedown requests. In the first half of this year, it processed over a thousand takedown notices, removing 18,472 projects. \r\nPut into context, however, th… [+2958 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Danyal Rasool",
+  //           "title": "Shan Masood hails 'important win for Pakistan cricket'",
+  //           "description": "Pakistan captain relieved after change in tactics helps bring end to barren home run",
+  //           "url": "https://www.espncricinfo.com/story/pak-vs-eng-2nd-test-shan-masood-hails-important-win-for-pakistan-cricket-1455870",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/389300/389313.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-18T10:11:28Z",
+  //           "content": "Shan Masood greets the fans across the railings after Pakistan's win  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Wriddhiman Saha to retire from cricket after Ranji Trophy season",
+  //           "description": "The 2024-25 Ranji Trophy season will be his last tournament as a cricketer - both for international and domestic cricket",
+  //           "url": "https://www.espncricinfo.com/story/wriddhiman-saha-to-retire-from-cricket-after-ranji-trophy-season-1458298",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/295900/295919.6.jpg",
+  //           "publishedAt": "2024-11-04T04:57:22Z",
+  //           "content": "After a cherished journey in cricket, this season will be my last. I'm honored to represent Bengal one final time, playing only in the Ranji Trophy before I retire. Let's make this season one to reme… [+82 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Cricket dropped from Glasgow 2026 Commonwealth Games schedule",
+  //           "description": "No specific reason has been provided for the decision, but a number of disciplines have been removed from the 2026 edition",
+  //           "url": "https://www.espncricinfo.com/story/cricket-dropped-from-glasgow-2026-commonwealth-games-schedule-1456484",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/343900/343923.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-22T07:21:10Z",
+  //           "content": "NewsNo specific reason has been provided for the decision, but a number of disciplines have been removed from the 2026 edition"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Andrew McGlashan",
+  //           "title": "Wade retires from international cricket, makes swift move to coaching",
+  //           "description": "The wicketkeeper-batter will continue to play BBL and other franchise T20 tournaments",
+  //           "url": "https://www.espncricinfo.com/story/australia-news-matthew-wade-retires-from-international-cricket-makes-swift-move-to-coaching-1457477",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/371900/371999.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-29T00:39:45Z",
+  //           "content": "Rizwan announced white-ball captain; Babar, Afridi, Naseem return for Australia tour"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Alex Malcolm",
+  //           "title": "Cricket Australia looks to unify approach to managing quicks",
+  //           "description": "CA are advertising for a new national pace-bowling coach to work across the men's team and the states to manage Australia's next generation of fast bowlers",
+  //           "url": "https://www.espncricinfo.com/story/australia-news-cricket-australia-looks-to-unify-approach-to-managing-quicks-1456469",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/376800/376808.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-22T04:55:06Z",
+  //           "content": "CA is looking to appoint a national pace-bowling coach to work with Andrew McDonald and Daniel Vettori  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Liam Norwell, Warwickshire's former fast bowler, retires aged 32",
+  //           "description": "Hero of 2022 Championship season has not played first-team cricket since saving team from relegation",
+  //           "url": "https://www.espncricinfo.com/story/liam-norwell-warwickshire-former-fast-bowler-retires-aged-32-1459331",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/346700/346768.6.jpg",
+  //           "publishedAt": "2024-11-12T11:33:46Z",
+  //           "content": "NewsHero of 2022 Championship season has not played first-team cricket since saving team from relegation"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Al Jazeera Staff",
+  //           "title": "South Africa vs India – T20 series: Match times, squads, head-to-head, news",
+  //           "description": "Suryakumar Yadav leads a new-look Indian squad in a four-match T20 series as the Proteas seek to avenge the final loss.",
+  //           "url": "https://www.aljazeera.com/sports/2024/11/7/south-africa-vs-india-t20-series-match-times-squads-head-to-head-news",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/11/GettyImages-2182694841-1730994027.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-11-07T16:05:24Z",
+  //           "content": "The wounds of a painful loss at the ICC T20 World Cup final will still be fresh for South Africa as they face their conquerors India in a four-match T20 series at home starting on Friday.\r\nMore than … [+4473 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Kevin Hand",
+  //           "title": "Pakistan spinners take all 20 England wickets to level Test series",
+  //           "description": "Pakistan beat England by 152 runs to level three-game series on Day Four of second Test match in Multan.",
+  //           "url": "https://www.aljazeera.com/sports/2024/${this.props.pageSize}/18/pakistan-spinners-take-all-20-england-wickets-to-level-test-series",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/${this.props.pageSize}/GettyImages-2179113410-1729237926.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-${this.props.pageSize}-18T09:01:11Z",
+  //           "content": "Pakistan sealed their first home Test win in nearly four years as they beat England by 152 runs in the second match in Multan on Friday, levelling the three-game series and vanquishing last weeks cru… [+4380 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-${this.props.pageSize}-25T09:01:53Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Cameron Ponsonby",
+  //           "title": "Marcus Trescothick: Domestic structure is 'not helping' England's ODI standards",
+  //           "description": "Interim coach says finding more opportunities for 50-over cricket is isn't easy within current structure",
+  //           "url": "https://www.espncricinfo.com/story/wi-vs-eng-2024-marcus-trescothick-domestic-structure-is-not-helping-england-s-odi-standards-1458761",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/390000/390062.6.jpg",
+  //           "publishedAt": "2024-11-07T14:16:30Z",
+  //           "content": "England aren't good at ODI cricket, and they can't help it"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Al Jazeera",
+  //           "title": "Pakistan beat Australia by 8 wickets in third ODI to win series 2-1",
+  //           "description": "Pakistan dismiss hosts for 140 and chase the target in 27 overs to win their first ODI series in Australia since 2002.",
+  //           "url": "https://www.aljazeera.com/sports/2024/11/${this.props.pageSize}/pakistan-beat-australia-by-8-wickets-in-third-odi-to-win-series-2-1",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/11/AFP__20241110__36LZ688__v1__HighRes__CricketAusPak-1731230066.jpg?resize=1920%2C1440",
+  //           "publishedAt": "2024-11-10T10:04:50Z",
+  //           "content": "Pakistan have beaten Australia 2-1 in their one-day international (ODI) cricket series after their fast bowlers put on a superb display of pace and seam bowling to dismiss Australia for 140 in the th… [+2096 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-${this.props.pageSize}-25T00:20:50Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Stuart Law let go as USA head coach",
+  //           "description": "'It was not an easy decision to make,' according to Johnathan Atkeison, CEO of USA Cricket",
+  //           "url": "https://www.espncricinfo.com/story/usa-cricket-news-stuart-law-let-go-as-usa-men-s-head-coach-1457359",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/383000/383067.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-27T16:08:34Z",
+  //           "content": "News'It was not an easy decision to make,' according to Johnathan Atkeison, CEO of USA Cricket"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Professional coach suspended for 'inappropriate sexual behaviour'",
+  //           "description": "The Cricket Regulator imposes sanctions after incident on pre-season tour in March",
+  //           "url": "https://www.espncricinfo.com/story/professional-coach-suspended-for-inappropriate-sexual-behaviour-1459334",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/308800/308826.6.jpg",
+  //           "publishedAt": "2024-11-12T13:00:35Z",
+  //           "content": "The incidents took place on a pre-season tour in March 2024  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Andrew McGlashan",
+  //           "title": "Pat Cummins, and Pakistan: welcome back to ODI cricket",
+  //           "description": "The three-match series begins at the MCG, with both teams building towards the Champions Trophy",
+  //           "url": "https://www.espncricinfo.com/series/australia-vs-pakistan-2024-25-1426544/australia-vs-pakistan-1st-odi-1426549/match-preview",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/388200/388202.6.jpg",
+  //           "publishedAt": "2024-11-03T04:19:46Z",
+  //           "content": "Rizwan announced white-ball captain; Babar, Afridi, Naseem return"
+  //         },
+  //         {
+  //           "source": { "id": "al-jazeera-english", "name": "Al Jazeera English" },
+  //           "author": "Al Jazeera",
+  //           "title": "Pakistan ex-PM Imran Khan’s wife, Bushra Bibi, released from prison",
+  //           "description": "The couple was sentenced in January to 14 years in prison on what they claim are trumped-up corruption charges.",
+  //           "url": "https://www.aljazeera.com/news/2024/${this.props.pageSize}/24/pakistan-ex-pm-imran-khans-wife-bushra-bibi-released-from-prison",
+  //           "urlToImage": "https://www.aljazeera.com/wp-content/uploads/2024/${this.props.pageSize}/AP24058363789663-1729764342.jpg?resize=1200%2C675",
+  //           "publishedAt": "2024-${this.props.pageSize}-24T10:29:36Z",
+  //           "content": "Bushra Bibi, the wife of Pakistans former Prime Minister Imran Khan, has been released from prison nearly nine months after the couple was sentenced in a case linked to the illegal sale of state gift… [+1926 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Richard Whittam KC to chair new Cricket Discipline Panel",
+  //           "description": "Whittam oversees a new body which will take over duties from the Cricket Discipline Commission",
+  //           "url": "https://www.espncricinfo.com/story/richard-whittam-kc-to-chair-new-cricket-discipline-panel-1459497",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/390900/390926.6.png",
+  //           "publishedAt": "2024-11-13T15:13:33Z",
+  //           "content": "Richard Whittam KC is the new chair of the Cricket Discipline Panel  •  England &amp; Wales Cricket Board"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-11-08T18:13:05Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Muhammad Waseem steps down as UAE's ODI captain",
+  //           "description": "Waseem will continue to represent UAE in both ODI and T20I cricket",
+  //           "url": "https://www.espncricinfo.com/story/muhammad-waseem-steps-down-as-uae-odi-captain-1456950",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/378700/378702.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T09:18:36Z",
+  //           "content": "Update: Muhammad Waseem has decided to step down as captain of the UAE men's ODI team. Waseem will continue to represent the country in the ODI format. The Emirates Cricket Board has thanked Waseem f… [+166 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-${this.props.pageSize}-21T13:44:22Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": "abc-news-au", "name": "ABC News (AU)" },
+  //           "author": "Michael Doyle",
+  //           "title": "Cricket Australia extend McDonald as coach until 2027",
+  //           "description": "McDonald, who took over the side in 2022, has guided Australia to being the number one ranked Test team in the world, while also being ranked second in one day and T20.",
+  //           "url": "https://www.abc.net.au/news/2024-${this.props.pageSize}-30/cricket-australia-extend-mcdonald-as-coach-until-2027/104538818",
+  //           "urlToImage": "https://live-production.wcms.abc-cdn.net.au/9d669a87c477f8f9a0491f44bd6ad130?impolicy=wcms_watermark_news&cropH=1698&cropW=3018&xPos=0&yPos=20&width=862&height=485&imformat=generic",
+  //           "publishedAt": "2024-${this.props.pageSize}-30T05:37:36Z",
+  //           "content": "Australia men's cricket coach Andrew McDonald has had his contract extended to the end of 2027, following success in the red and white ball game.\r\nMcDonald, who took over the side in 2022, has guided… [+1423 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "ESPNcricinfo staff",
+  //           "title": "Warwickshire's Michael Burgess announces sudden retirement from professional cricket",
+  //           "description": "Wicketkeeper had a year to run on his contract but will pursue other career options in London",
+  //           "url": "https://www.espncricinfo.com/story/warwickshire-s-michael-burgess-announces-sudden-retirement-from-professional-cricket-1459527",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/384100/384156.6.jpg",
+  //           "publishedAt": "2024-11-13T17:13:47Z",
+  //           "content": "Michael Burgess made seven first-class hundreds in his professional career  •  Getty Images"
+  //         },
+  //         {
+  //           "source": { "id": "abc-news-au", "name": "ABC News (AU)" },
+  //           "author": "ABC News",
+  //           "title": "Cricket veteran rekindles partnership after 30-year break",
+  //           "description": "Tony and Lyndelle Bristow divorced in the early 1990s when his cricket career took him to the other side of the world. Thirty years later they have remarried.",
+  //           "url": "https://www.abc.net.au/news/2024-11-03/couple-remarries-30-years-after-divorce/104535704",
+  //           "urlToImage": "https://live-production.wcms.abc-cdn.net.au/8d4e59d7e3d2c35e110806184dcb4c4f?impolicy=wcms_watermark_news&cropH=2813&cropW=5000&xPos=0&yPos=182&width=862&height=485&imformat=generic",
+  //           "publishedAt": "2024-11-02T23:54:15Z",
+  //           "content": "One of the most valuable lessons Newcastle's oldest first-grade cricketer has learnt over the years is that a first-innings disappointment is soon forgotten if you make amends in the second.\r\nTony Br… [+4011 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Sive.rs" },
+  //           "author": null,
+  //           "title": "rats are surprisingly sweet pets",
+  //           "description": null,
+  //           "url": "https://sive.rs/rats",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-11-12T00:00:00Z",
+  //           "content": "rats are surprisingly sweet pets\r\n2024-11-12\r\nI used to live in a basement apartment, next to the trash room.\r\nRats were often blocking my door, and I could hear them walking in the ceiling right abo… [+2121 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Alex Malcolm",
+  //           "title": "Wasim Akram urges India to travel to Pakistan for Champions Trophy 2025",
+  //           "description": "\"I can promise you, they [are] going to get looked after amazingly well. The young cricket fans adore them\"",
+  //           "url": "https://www.espncricinfo.com/story/wasim-akram-urges-india-to-travel-to-pakistan-for-champions-trophy-2025-1457760",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/367000/367036.6.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-31T07:58:58Z",
+  //           "content": "News\"I can promise you, they [are] going to get looked after amazingly well. The young cricket fans adore them\""
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Sky Sports" },
+  //           "author": null,
+  //           "title": "Man Utd in talks to appoint Sporting's Amorim as new boss",
+  //           "description": "Manchester United have approached Sporting over appointing head coach Ruben Amorim as their new boss.",
+  //           "url": "https://www.skysports.com/football/news/11667/13243647/ruben-amorim-manchester-united-in-talks-with-sporting-boss-to-become-new-head-coach",
+  //           "urlToImage": "https://e0.365dm.com/24/${this.props.pageSize}/1600x900/skysports-ruben-amorim-manchester-united_6731450.jpg?20241028185114",
+  //           "publishedAt": "2024-${this.props.pageSize}-28T18:55:00Z",
+  //           "content": "Manchester United have approached Sporting over appointing head coach Ruben Amorim as their new boss.\r\nTalks are thought to be ongoing over making the 39-year-old Erik ten Hag's successor after the D… [+1893 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-${this.props.pageSize}-22T06:20:21Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "[Removed]" },
+  //           "author": null,
+  //           "title": "[Removed]",
+  //           "description": "[Removed]",
+  //           "url": "https://removed.com",
+  //           "urlToImage": null,
+  //           "publishedAt": "2024-${this.props.pageSize}-22T06:30:38Z",
+  //           "content": "[Removed]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Valkerie Baynes",
+  //           "title": "England Women appoint Courtney Winfield-Hill as assistant coach",
+  //           "description": "Former cricket and rugby league pro to join squads for tour of South Africa and Women's Ashes",
+  //           "url": "https://www.espncricinfo.com/story/england-women-appoint-courtney-winfield-hill-as-assistant-coach-1459643",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/390900/390963.6.jpg",
+  //           "publishedAt": "2024-11-14T10:43:03Z",
+  //           "content": "Courtney Winfield-Hill will join the England Women's set-up as an assistant coach for the upcoming tour of South Africa and the Women's Ashes.\r\nWinfield-Hill, a 37-year-old former cricket and rugby l… [+2210 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "tagesschau.de" },
+  //           "author": "tagesschau.de",
+  //           "title": "Immer mehr Mitglieder von Trumps Team werden bekannt",
+  //           "description": "Nationaler Sicherheitsberater, Außenminister, Stabschefs - und jetzt auch die Heimatschutzministerin: Immer mehr Posten in Trumps künftiger Regierung sind Berichten zufolge vergeben. Er setzt auf Hardliner und loyale Gefolgsleute.",
+  //           "url": "https://www.tagesschau.de/ausland/amerika/usa-trump-waltz-sicherheitsberater-102.html",
+  //           "urlToImage": "https://images.tagesschau.de/image/b91e43c5-5c73-4534-81ec-c31f324142ca/AAABkx9pcko/AAABkZLhkrw/16x9-1280/trump-noem-102.jpg",
+  //           "publishedAt": "2024-11-12T08:09:36Z",
+  //           "content": "Stand: 12.11.2024 09:09 Uhr\r\nNationaler Sicherheitsberater, Außenminister, Stabschefs - und jetzt auch die Heimatschutzministerin: Immer mehr Posten in Trumps künftiger Regierung sind Berichten zufol… [+3729 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Shashank Kishore",
+  //           "title": "Anshul Kamboj becomes third bowler to take all ten wickets in an innings in Ranji history",
+  //           "description": "Haryana fast bowler bagged ${this.props.pageSize} for 49 against Kerala, and became the sixth Indian to achieve the feat in first-class cricket",
+  //           "url": "https://www.espncricinfo.com/story/ranji-trophy-2024-25-haryana-s-anshul-kamboj-becomes-third-to-take-ten-wickets-1459750",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/380400/380479.6.jpg",
+  //           "publishedAt": "2024-11-15T07:47:58Z",
+  //           "content": "NewsHaryana fast bowler bagged ${this.props.pageSize} for 49 against Kerala, and became the sixth Indian to achieve the feat in first-class cricket"
+  //         },
+  //         {
+  //           "source": { "id": "espn-cric-info", "name": "ESPN Cric Info" },
+  //           "author": "Vishal Dikshit",
+  //           "title": "Southee chuffed about playing last Test series against England and McCullum",
+  //           "description": "Southee said it \"feels right\" to sign off from Test cricket after playing the team he debuted against as a teenager",
+  //           "url": "https://www.espncricinfo.com/story/tim-southee-chuffed-about-playing-last-test-series-against-england-and-brendon-mccullum-1459745",
+  //           "urlToImage": "https://img1.hscicdn.com/image/upload/f_auto/lsci/db/PICTURES/CMS/376900/376935.6.jpg",
+  //           "publishedAt": "2024-11-15T07:16:18Z",
+  //           "content": "Williamson returns for England series, Nathan Smith called up"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Bleeding Cool News" },
+  //           "author": "Ray Flook",
+  //           "title": "Always Sunny Season 17: David Hornsby Gets Into \"Rickety Cricket\" Mode",
+  //           "description": "When it comes to covering FXX's Kaitlin Olson, Rob McElhenney, Charlie Day, Glenn Howerton & Danny DeVito– starring It's Always Sunny in Philadelphia, we've been living in two overlapping worlds. One world involves anything and everything that we can learn ab…",
+  //           "url": "https://bleedingcool.com/tv/always-sunny-season-17-david-hornsby-gets-into-rickety-cricket-mode/",
+  //           "urlToImage": "https://bleedingcool.com/wp-content/uploads/2024/${this.props.pageSize}/MixCollage-30-Oct-2024-11-47-AM-4928-2000x1125.jpg",
+  //           "publishedAt": "2024-${this.props.pageSize}-30T16:07:08Z",
+  //           "content": "Posted in: FX, Hulu, TV | Tagged: always sunny, It's Always Sunny In Philadelphia\r\nIt's Always Sunny in Philadelphia star, writer, and EP David Hornsby shared a look at his transformation into Ricket… [+3372 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tim Ellis, Contributor, \n Tim Ellis, Contributor\n https://www.forbes.com/sites/timellis/",
+  //           "title": "Washington Sundar Shows Frontline Skills For India In Test Return",
+  //           "description": "India might lose a home Test series for the first time in 12 years, but Washington Sundar has shown he is ready for a red-ball return.",
+  //           "url": "https://www.forbes.com/sites/timellis/2024/${this.props.pageSize}/25/washington-sundar-shows-frontline-skills-for-india-in-test-return/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/671aec0eb7e9e0f12e708d8a/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-25T22:08:59Z",
+  //           "content": "India's Washington Sundar celebrates with his teammate Ravichandran Ashwin (R) after taking the ... [+] wicket of New Zealand's Glenn Phillips during the first day of the second Test cricket match be… [+4723 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Forbes" },
+  //           "author": "Tim Ellis, Contributor, \n Tim Ellis, Contributor\n https://www.forbes.com/sites/timellis/",
+  //           "title": "Rohit Sharma Remains Calm As New Zealand Poke The Indian Bear",
+  //           "description": "India lost the first Test to New Zealand at Bengaluru after being bowled out for 46. Rohit Sharma didn't sound too worried. He has good reason.",
+  //           "url": "https://www.forbes.com/sites/timellis/2024/${this.props.pageSize}/21/rohit-sharma-remains-calm-as-new-zealand-poke-the-indian-bear/",
+  //           "urlToImage": "https://imageio.forbes.com/specials-images/imageserve/671671e5563299094202aa85/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+  //           "publishedAt": "2024-${this.props.pageSize}-21T16:55:34Z",
+  //           "content": "BENGALURU, INDIA - OCTOBER 18: Rohit Sharma of India walks back after being dismissed during day ... [+] three of the First Test match between India and New Zealand at M. Chinnaswamy Stadium on Octob… [+4543 chars]"
+  //         },
+  //         {
+  //           "source": { "id": null, "name": "Eurogamer.net" },
+  //           "author": "Ed Nightingale",
+  //           "title": "British Fallout-like Atomfall gets detailed gameplay trailer",
+  //           "description": "Atomfall, the forthcoming British Fallout-like game from Sniper Elite studio Rebellion, has received a new trailer detailing more of its setting and gameplay. Read more",
+  //           "url": "https://www.eurogamer.net/british-fallout-like-atomfall-gets-detailed-gameplay-trailer",
+  //           "urlToImage": "https://assetsio.gnwcdn.com/Introducing-Atomfall-_-Gameplay-%26-World-First-Look-5-7-screenshot.png?width=1200&height=630&fit=crop&enable=upscale&auto=webp",
+  //           "publishedAt": "2024-${this.props.pageSize}-21T11:08:43Z",
+  //           "content": "Atomfall, the forthcoming British Fallout-like game from Sniper Elite studio Rebellion, has received a new trailer detailing more of its setting and gameplay.\r\nSet in 1962, the game takes place in a … [+1905 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "abc-news-au", "name": "ABC News (AU)" },
+  //           "author": "Chris Calcino, Adam Stephen, and Hannah Walsh",
+  //           "title": "Bush kids play debut match after launching their own outback cricket club",
+  //           "description": "A band of barefoot boundary bashers have brought junior cricket back to the remote Queensland town of Cunnamulla, and it all started with an 11-year-old boy, some coloured pens, and one very dedicated mum.",
+  //           "url": "https://www.abc.net.au/news/2024-11-09/cunnamulla-kids-debut-after-launching-own-cricket-club/104576016",
+  //           "urlToImage": "https://live-production.wcms.abc-cdn.net.au/70ddcec402d66d2ce7f41322846334cc?impolicy=wcms_watermark_news&cropH=2813&cropW=5000&xPos=0&yPos=469&width=862&height=485&imformat=generic",
+  //           "publishedAt": "2024-11-08T21:50:13Z",
+  //           "content": "A right old giggle was had in Cunnamulla earlier this year at the sight of a young lad plastering hand-drawn flyers around town.\r\nThe artwork, scrawled in coloured pen on the blank side of scrap pape… [+6443 chars]"
+  //         },
+  //         {
+  //           "source": { "id": "fox-sports", "name": "Fox Sports" },
+  //           "author": null,
+  //           "title": "LA on the clock for 2028 Olympics with focus turning to delivery, planning",
+  //           "description": "The International Olympic Committee's Coordination Commission had a visit to see the progress of the 2028 Los Angeles Olympics.",
+  //           "url": "https://www.foxsports.com/stories/olympics/los-angeles-is-on-the-clock-for-2028-olympics-with-focus-turning-to-delivery-and-planning-next-year",
+  //           "urlToImage": "https://a57.foxsports.com/statics.foxsports.com/www.foxsports.com/content/uploads/2024/11/1408/814/la1.jpg?ve=1&tl=1",
+  //           "publishedAt": "2024-11-15T17:36:22Z",
+  //           "content": "The International Olympic Committee's Coordination Commission wrapped up a three-day visit Thursday to check out selected venues and track the progress of the 2028 Los Angeles Olympics.\r\n\"We're four … [+3387 chars]"
+  //         }
+        
+  // ]
+
+  capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  }
+
+  constructor(props){
+    super(props);
+    // console.log("hello I am a constructor from news component");
+    // this.state= {
+    //     articles:this.articles,
+    //     loading:false
+    //   }
+    this.state= {
+      articles:[],
+      loading:false,
+      page: 1
+    }
+    // document.title = `NewsIndia - ${this.capitalizeFirstLetter(this.props.category)}`;
+    }
+  
+    // page -> Use this to page through the results if the total results found is greater than the page size.
+    //  pageSize -> The number of results to return per page (request). 20 is the default, 100 is the maximum.
+
+
+    async updateNews(){
+      this.props.setProgress(10);
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=ff74d8a0edcc4c7fb1265baa26749e5f&page=${this.state.page+1}&pageSize=${this.props.pageSize}` ;
+      let data = await fetch(url);
+      this.props.setProgress(30);
+      let parseData = await data.json()
+      this.props.setProgress(70);
+      console.log(parseData);
+      this.setState({
+        articles:parseData.articles,
+        totalArticles: parseData.totalResults,
+        loading: false
+      })
+      this.props.setProgress(100);
+    }
+
+    async componentDidMount(){
+      // console.log("cdm")
+      // 
+      this.updateNews();
+    }
+
+    // handlePrevClick=async()=>{
+    //   // console.log("Prev");
+    //   // let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=ff74d8a0edcc4c7fb1265baa26749e5f&page=${this.state.page-1}&pageSize=${this.props.pageSize}` ;
+    //   // this.setState({loading:true})
+    //   // let data = await fetch(url);
+    //   // let parseData = await data.json()
+    //   // this.setState({
+    //   //   page: this.state.page-1,
+    //   //   articles:parseData.articles,
+    //   //   loading:false
+    //   // })
+    //   this.setState({loading:true})
+    //   this.setState({page:this.state.page-1});
+    //   this.updateNews();
+    // }
+
+    // handleNextClick=async()=>{
+    //   // console.log("Next");
+    //   // let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=ff74d8a0edcc4c7fb1265baa26749e5f&page=${this.state.page+1}&pageSize=${this.props.pageSize}` ;
+    //   // this.setState({loading:true})
+    //   // let data = await fetch(url);
+    //   // let parseData = await data.json()
+    //   // this.setState({
+    //   //   page: this.state.page+1,
+    //   //   articles:parseData.articles,
+    //   //   loading:false
+    //   // })
+    //   this.setState({loading:true})
+    //   this.setState({page:this.state.page+1});
+    //   this.updateNews();
+    // }
+
+    fetchMoreData = async() => {
+      this.setState({page: this.state.page+1});
+      let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=ff74d8a0edcc4c7fb1265baa26749e5f&page=${this.state.page+1}&pageSize=${this.props.pageSize}` ;
+      let data = await fetch(url);
+      let parseData = await data.json()
+      console.log(parseData);
+      this.setState({
+        articles:this.state.articles.concat(parseData.articles),
+        totalArticles: parseData.totalResults,
+        loading: false
+      })
+    };
+
+  render() {
+    // console.log("render")
+    return (
+      <>
+        <h1 className='text-center' style={{margin: '40px 0px'}}>NewsRadar - Top {this.capitalizeFirstLetter(this.props.category)} Haedlines</h1>
+        {/* {this.state.loading && <Spinner/>} */}
+        <InfiniteScroll
+          dataLength={this.state.articles.length}
+          next={this.fetchMoreData}
+          hasMore={this.state.articles.length !== this.state.totalArticles}
+          loader = {<Spinner/>}
+        >
+        <div className='container'>
+        <div className="row">
+          {/* <div className="col-md-3">
+            <NewsItem title="myTitle" description="description added" imageUrl="https://ichef.bbci.co.uk/news/1024/branded_news/0dc7/live/ba4c38e0-a139-11ef-9f85-27126280b4e4.jpg"/>
+          </div> */}
+          {/* {!this.state.loading && this.state.articles.map((element)=>{ */}
+          {this.state.articles.map((element)=>{
+             return <div className="col-md-3" key={element.url}>
+              <NewsItem  title={element.title} description={element.description} imageUrl={element.urlToImage} newsUrl={element.url} 
+              author={element.author} date={element.publishedAt} source={element.source}/>
+            </div>
+          })}
+
+        </div>
+        {/* <div className="d-flex justify-content-between">
+        <button disabled={this.state.page<=1} type="button" class="btn btn-dark" onClick={this.handlePrevClick}>&larr;Previous</button>
+        <button disabled={this.state.page+1>Math.ceil(this.state.totalArticles/this.props.pageSize)} type="button" class="btn btn-dark" onClick={this.handleNextClick}>Next&rarr;</button>
+        </div> */}
+        </div>
+        </InfiniteScroll>
+
+      </>
+          
+    )
+  }
+}
+
+export default News
